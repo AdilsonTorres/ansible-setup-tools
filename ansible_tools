@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import argparse
+import subprocess
+
+ROOT_PATH = sys.path[0]
+
+SETUP = {
+    "question": "Type of configuration",
+    "choices": ["all"],
+    "default_choice": 1,
+}
+
+
+
+# https://stackoverflow.com/a/24122778
+class _HelpAction(argparse._HelpAction):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+
+        # retrieve subparsers from parser
+        subparsers_actions = [
+            action for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)]
+        # there will probably only be one subparser_action,
+        # but better save than sorry
+        for subparsers_action in subparsers_actions:
+            # get all subparsers and print help
+            for choice, subparser in subparsers_action.choices.items():
+                print("\nOption '{}'".format(choice))
+                print(subparser.format_help())
+
+        parser.exit()
+
+
+def ask_question(question, choices, default=None):
+    print("\n\n" + question)
+    ask_choices = ""
+
+    for i in range(len(choices)):
+        ask_choices += "{}. ".format(i+1) + choices[i] + "\n"
+
+    if default:
+        ask_choices += "Response (default {}): ".format(default)
+    else:
+        ask_choices += "Response: "
+
+    answer = input(ask_choices)
+
+    if not answer and default:
+        return default - 1
+
+    possible_options = [i for i in range(1, len(choices)+1)]
+
+    while not answer.isdigit() or int(answer) not in possible_options:
+        print("Invalid answer, please choose from the options.\n")
+        answer = input(ask_choices)
+
+        if not answer and default:
+            return default - 1
+
+    return int(answer) - 1
+
+
+def init_args(argv):
+    """
+    Defines required and optional parameters to run this script
+
+    :return: Returns arguments passed as parameters.
+    """
+    choices = ["me"]
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, add_help=False,
+                                     description="Tools to setup and run configurations on linux machines.")
+
+    parser.add_argument('-h', '--help', action=_HelpAction, help='help for help if you need some help')
+
+    parser.add_argument('--setup', type=str, choices=choices)
+
+    parser._positionals.title = "required arguments"
+
+    if len(argv) == 1:
+        parser.print_help()
+        sys.exit(0)
+
+    args = parser.parse_args()
+    return args
+
+
+def main(argv):
+    args = init_args(argv)
+    if args.setup:
+        # TODO: Maybe search for question, choices and default_choice instead list (Dynamically).
+        index_answer = ask_question(SETUP["question"], SETUP["choices"], SETUP["default_choice"])
+        print(index_answer)
+
+
+if __name__ == '__main__':
+    try:
+        main(sys.argv)
+    except KeyboardInterrupt:
+        print('Application stopped by user.\n')
+        sys.exit(0)
