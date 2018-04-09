@@ -1,0 +1,6 @@
+# Ansible files
+*.retry
+
+# Jetbrains IDEs
+
+.idea/
