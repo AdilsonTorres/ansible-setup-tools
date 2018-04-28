@@ -1,0 +1,7 @@
+---
+
+- name: Install snap app
+  become: True
+  shell: snap install "{{ item }}"
+  with_items:
+    - "{{ apps }}"

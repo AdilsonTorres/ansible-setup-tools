@@ -1,0 +1,17 @@
+---
+
+- hosts: "{{ host }}"
+  gather_facts: false
+
+  tasks:
+#
+#    - include_tasks: "{{ snap }}"
+#      when: snap_like is defined
+
+    - include_tasks: "{{ command }}"
+      with_dict: "{{ command_apps }}"
+      when: command_apps is defined
+
+    - include_tasks: "{{ package }}"
+      with_dict: "{{ package_apps }}"
+      when: package_apps is defined

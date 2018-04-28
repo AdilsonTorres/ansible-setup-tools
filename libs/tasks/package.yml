@@ -1,0 +1,8 @@
+---
+
+- set_fact: app="{{item}}"
+- name: "Install {{ app.key }} app"
+  become: True
+  package:
+    name: "{{ app.key }}"
+    state: present
